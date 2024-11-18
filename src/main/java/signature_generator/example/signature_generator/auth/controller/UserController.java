@@ -2,7 +2,9 @@ package signature_generator.example.signature_generator.auth.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import signature_generator.example.signature_generator.auth.model.User;
@@ -69,10 +71,18 @@ public class UserController {
     }
 
     @GetMapping("/users")
-    public ResponseEntity<List<User>> getAllUsers() {
-        List<User> users = userService.getAllUsers();
-        return ResponseEntity.ok(users);
+    public ResponseEntity<?> getAllUsers(@AuthenticationPrincipal User loggedInUser) {
+        if (loggedInUser != null && "Admin".equals(loggedInUser.getRole())) {
+            List<User> users = userService.getAllUsers();
+            return ResponseEntity.ok(users);
+        } else if (loggedInUser != null) {
+            return ResponseEntity.ok(loggedInUser);
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized: Please log in.");
+        }
     }
+
+
 
     @GetMapping("/users/count")
     public ResponseEntity<Map<String, Object>> countUsers() {
