@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Signature</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .signature-container {
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 5px;
+            max-width: 600px;
+        }
+        h1 {
+            color: #333;
+        }
+        .signature {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #555;
+        }
+        .button-container {
+            margin-top: 20px;
+        }
+        button {
+            background-color: #0078D4;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover {
+            background-color: #005A9E;
+        }
+    </style>
+</head>
+<body>
+<div class="signature-container">
+    <h1>Your Email Signature</h1>
+    <div class="signature" id="signature-content">
+        <strong>Name:</strong> John Doe<br>
+        <strong>Title:</strong> Software Engineer<br>
+        <strong>Email:</strong> johndoe@example.com<br>
+        <strong>Phone:</strong> (123) 456-7890<br>
+        <strong>Website:</strong> <a href="https://example.com" target="_blank">example.com</a>
+    </div>
+    <div class="button-container">
+        <button onclick="openOutlook()">Add to Outlook</button>
+    </div>
+</div>
+<script>
+    function openOutlook() {
+        const outlookUrl = "https://outlook.office.com/mail/options/accounts-category/signatures-subcategory";
+        const signatureContent = document.getElementById("signature-content").innerHTML;
+
+        // Open the Outlook settings page
+        const win = window.open(outlookUrl, "_blank");
+
+        if (win) {
+            alert("Navigate to the Outlook signature settings and paste the following:\n\n" + signatureContent);
+        } else {
+            alert("Please allow popups in your browser to proceed.");
+        }
+    }
+</script>
+</body>
+</html>
