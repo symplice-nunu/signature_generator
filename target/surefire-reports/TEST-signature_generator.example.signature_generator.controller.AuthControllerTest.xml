@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="signature_generator.example.signature_generator.SignatureGeneratorApplicationTests" time="2.481" tests="1" errors="0" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="signature_generator.example.signature_generator.controller.AuthControllerTest" time="0.142" tests="10" errors="0" skipped="0" failures="0">
   <properties>
     <property name="java.specification.version" value="21"/>
     <property name="sun.jnu.encoding" value="UTF-8"/>
@@ -66,62 +66,14 @@
     <property name="java.class.version" value="65.0"/>
     <property name="LOGGED_APPLICATION_NAME" value="[signature_generator] "/>
   </properties>
-  <testcase name="contextLoads" classname="signature_generator.example.signature_generator.SignatureGeneratorApplicationTests" time="0.349">
-    <system-out><![CDATA[18:26:24.337 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [signature_generator.example.signature_generator.SignatureGeneratorApplicationTests]: SignatureGeneratorApplicationTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
-18:26:24.383 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration signature_generator.example.signature_generator.SignatureGeneratorApplication for test class signature_generator.example.signature_generator.SignatureGeneratorApplicationTests
-
-  .   ____          _            __ _ _
- /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
-( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
- \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
-  '  |____| .__|_| |_|_| |_\__, | / / / /
- =========|_|==============|___/=/_/_/_/
- :: Spring Boot ::                (v3.2.0)
-
-2024-11-19T18:26:24.569+02:00  INFO 29111 --- [signature_generator] [           main] s.e.s.SignatureGeneratorApplicationTests : Starting SignatureGeneratorApplicationTests using Java 21.0.2 with PID 29111 (started by samuelishimwe in /Users/samuelishimwe/IdeaProjects/signature_generator)
-2024-11-19T18:26:24.570+02:00  INFO 29111 --- [signature_generator] [           main] s.e.s.SignatureGeneratorApplicationTests : No active profile set, falling back to 1 default profile: "default"
-2024-11-19T18:26:24.880+02:00  INFO 29111 --- [signature_generator] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2024-11-19T18:26:24.907+02:00  INFO 29111 --- [signature_generator] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 23 ms. Found 2 JPA repository interfaces.
-2024-11-19T18:26:25.150+02:00  INFO 29111 --- [signature_generator] [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
-2024-11-19T18:26:25.175+02:00  INFO 29111 --- [signature_generator] [           main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.3.1.Final
-2024-11-19T18:26:25.191+02:00  INFO 29111 --- [signature_generator] [           main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
-2024-11-19T18:26:25.298+02:00  INFO 29111 --- [signature_generator] [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
-2024-11-19T18:26:25.311+02:00  INFO 29111 --- [signature_generator] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
-2024-11-19T18:26:25.412+02:00  INFO 29111 --- [signature_generator] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@64dc86c6
-2024-11-19T18:26:25.413+02:00  INFO 29111 --- [signature_generator] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
-2024-11-19T18:26:25.427+02:00  WARN 29111 --- [signature_generator] [           main] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
-2024-11-19T18:26:25.819+02:00  INFO 29111 --- [signature_generator] [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
-Hibernate: 
-    drop table if exists users cascade
-2024-11-19T18:26:25.829+02:00  WARN 29111 --- [signature_generator] [           main] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Warning Code: 0, SQLState: 00000
-2024-11-19T18:26:25.829+02:00  WARN 29111 --- [signature_generator] [           main] o.h.engine.jdbc.spi.SqlExceptionHelper   : table "users" does not exist, skipping
-Hibernate: 
-    create table users (
-        is_verified boolean not null,
-        id bigserial not null,
-        token_expiry_time bigint not null,
-        company_address varchar(255),
-        company_name varchar(255),
-        company_site varchar(255),
-        email varchar(255) not null unique,
-        mission_statement varchar(255),
-        password varchar(255) not null,
-        phone varchar(255),
-        role varchar(255) not null,
-        user_title varchar(255),
-        username varchar(255) not null unique,
-        verification_token varchar(255),
-        primary key (id)
-    )
-2024-11-19T18:26:25.841+02:00  INFO 29111 --- [signature_generator] [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
-2024-11-19T18:26:26.055+02:00  WARN 29111 --- [signature_generator] [           main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
-2024-11-19T18:26:26.215+02:00  INFO 29111 --- [signature_generator] [           main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@17b387ef, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@489b7559, org.springframework.security.web.context.SecurityContextHolderFilter@45b2d17b, org.springframework.security.web.header.HeaderWriterFilter@6a30f6b1, org.springframework.web.filter.CorsFilter@4028aab2, org.springframework.security.web.authentication.logout.LogoutFilter@41dc34c8, signature_generator.example.signature_generator.auth.filter.JwtAuthenticationFilter@3694461d, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@15afebcc, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@68722de3, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@37aea657, org.springframework.security.web.session.SessionManagementFilter@5e25085, org.springframework.security.web.access.ExceptionTranslationFilter@7fb1820d, org.springframework.security.web.access.intercept.AuthorizationFilter@360d3f47]
-2024-11-19T18:26:26.372+02:00  INFO 29111 --- [signature_generator] [           main] s.e.s.SignatureGeneratorApplicationTests : Started SignatureGeneratorApplicationTests in 1.926 seconds (process running for 2.386)
-]]></system-out>
-    <system-err><![CDATA[WARNING: A Java agent has been loaded dynamically (/Users/samuelishimwe/.m2/repository/net/bytebuddy/byte-buddy-agent/1.14.10/byte-buddy-agent-1.14.10.jar)
-WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
-WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
-WARNING: Dynamic loading of agents will be disallowed by default in a future release
-]]></system-err>
-  </testcase>
+  <testcase name="shouldReturnSuccessMessageOnLogout" classname="signature_generator.example.signature_generator.controller.AuthControllerTest" time="0.114"/>
+  <testcase name="shouldReturnErrorWhenRegisteringWithExistingEmail" classname="signature_generator.example.signature_generator.controller.AuthControllerTest" time="0.003"/>
+  <testcase name="shouldReturnErrorWhenLoggingInWithIncorrectPassword" classname="signature_generator.example.signature_generator.controller.AuthControllerTest" time="0.002"/>
+  <testcase name="shouldReturnErrorWhenLoggingInWithUnverifiedEmail" classname="signature_generator.example.signature_generator.controller.AuthControllerTest" time="0.002"/>
+  <testcase name="shouldSuccessfullyRegisterNewUserWithValidInformation" classname="signature_generator.example.signature_generator.controller.AuthControllerTest" time="0.004"/>
+  <testcase name="shouldGenerateAndReturnJwtTokenUponSuccessfulLogin" classname="signature_generator.example.signature_generator.controller.AuthControllerTest" time="0.004"/>
+  <testcase name="shouldSuccessfullyLoginVerifiedUserWithCorrectCredentials" classname="signature_generator.example.signature_generator.controller.AuthControllerTest" time="0.002"/>
+  <testcase name="shouldVerifyUserEmailWithValidToken" classname="signature_generator.example.signature_generator.controller.AuthControllerTest" time="0.003"/>
+  <testcase name="shouldSendVerificationEmailAfterSuccessfulRegistration" classname="signature_generator.example.signature_generator.controller.AuthControllerTest" time="0.002"/>
+  <testcase name="shouldReturnErrorWhenVerifyingWithExpiredToken" classname="signature_generator.example.signature_generator.controller.AuthControllerTest" time="0.002"/>
 </testsuite>
