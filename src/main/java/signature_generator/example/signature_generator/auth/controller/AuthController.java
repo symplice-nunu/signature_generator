@@ -41,7 +41,7 @@ public class AuthController {
             );
 
             // Generate verification URL
-            String verificationUrl = "http://localhost:8080/api/auth/verify?token=" + registeredUser.getVerificationToken();
+            String verificationUrl = "http://signaturegenerator.samueldev.com/api/auth/verify?token=" + registeredUser.getVerificationToken();
 
             // Send verification email
             emailService.sendEmail(

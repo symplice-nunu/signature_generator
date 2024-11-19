@@ -4,6 +4,7 @@ FROM openjdk:23-jdk
 # Set the working directory inside the container
 WORKDIR /app
 
+CMD ["mvn","clean","package"]
 # Copy the Spring Boot JAR into the container
 COPY target/signature_generator-0.0.1-SNAPSHOT.jar app.jar
 
