@@ -12,7 +12,7 @@ public class WebConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         // Restrict CORS to only the /api/auth/** paths
         registry.addMapping("/api/**")
-                .allowedOrigins("http://localhost:8081")
+                .allowedOrigins("https://signature-generator-front-end.netlify.app")
                 .allowedMethods("GET", "POST", "PUT", "DELETE")
                 .allowCredentials(true)
                 .allowedHeaders("*");
