@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
@@ -50,7 +51,8 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String role; // New role field
 
-    public User() {}
+    public User() {
+    }
 
     // Constructor to initialize the user with required fields (username, password, email, phone)
     public User(String username, String password, String email, String phone, String role) {
@@ -61,10 +63,6 @@ public class User implements UserDetails {
         this.role = role;
     }
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
-    }
 
     public String getPassword() {
         return password;
@@ -72,7 +70,15 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return username;
+        return email;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        if (role == null) {
+            return List.of();
+        }
+        return List.of(new SimpleGrantedAuthority("ROLE_" + role.toUpperCase())); // Add "ROLE_" prefix if needed
     }
 
     @Override

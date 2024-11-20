@@ -72,7 +72,9 @@ public class UserController {
 
     @GetMapping("/users")
     public ResponseEntity<?> getAllUsers(@AuthenticationPrincipal User loggedInUser) {
-        if (loggedInUser != null && "Admin".equals(loggedInUser.getRole())) {
+        System.out.println(loggedInUser);
+        if (loggedInUser != null && loggedInUser.getAuthorities().stream()
+                .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"))) {
             List<User> users = userService.getAllUsers();
             return ResponseEntity.ok(users);
         } else if (loggedInUser != null) {
@@ -81,7 +83,6 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized: Please log in.");
         }
     }
-
 
 
     @GetMapping("/users/count")
