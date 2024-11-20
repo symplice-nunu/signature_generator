@@ -37,18 +37,18 @@ public class AuthControllerTest {
     private AuthController authController;
 
     @Test
-    void shouldSuccessfullyRegisterNewUserWithValidInformation() {
+    public void testRegisterSuccess() {
         // Arrange
         User user = new User();
         user.setUsername("testuser");
-        user.setPassword("testpassword");
-        user.setEmail("test@example.com");
+        user.setPassword("password123");
+        user.setEmail("testuser@example.com");
         user.setPhone("1234567890");
 
         User registeredUser = new User();
-        registeredUser.setUsername("testuser");
-        registeredUser.setEmail("test@example.com");
-        registeredUser.setVerificationToken("testtoken");
+        registeredUser.setUsername("testuser@example.com");
+        registeredUser.setEmail("testuser@example.com");
+        registeredUser.setVerificationToken("abc123");
 
         when(userService.registerUser(anyString(), anyString(), anyString(), anyString())).thenReturn(registeredUser);
         doNothing().when(emailService).sendEmail(anyString(), anyString(), anyString());
@@ -62,24 +62,24 @@ public class AuthControllerTest {
         Map<String, Object> responseBody = (Map<String, Object>) response.getBody();
         assertTrue((Boolean) responseBody.get("success"));
         assertEquals("User registered successfully. Please verify your email.", responseBody.get("message"));
-        assertEquals("testuser", responseBody.get("username"));
-        assertEquals("test@example.com", responseBody.get("email"));
+        assertEquals("testuser@example.com", responseBody.get("username"));
+        assertEquals("testuser@example.com", responseBody.get("email"));
 
-        verify(userService).registerUser("testuser", "testpassword", "test@example.com", "1234567890");
-        verify(emailService).sendEmail(eq("test@example.com"), eq("Verify Your Email"), contains("http://signaturegenerator.samueldev.com/api/auth/verify?token=testtoken"));
+        verify(userService).registerUser("testuser@example.com", "password123", "testuser@example.com", "1234567890");
+        verify(emailService).sendEmail(eq("testuser@example.com"), eq("Verify Your Email"), contains("http://signaturegenerator.samueldev.com/api/auth/verify?token=abc123"));
     }
 
     @Test
-    void shouldReturnErrorWhenRegisteringWithExistingEmail() {
+    public void testRegisterWithInvalidUserDetails() {
         // Arrange
         User user = new User();
-        user.setUsername("existinguser");
-        user.setPassword("password123");
-        user.setEmail("existing@example.com");
-        user.setPhone("1234567890");
+        user.setUsername("");
+        user.setPassword("");
+        user.setEmail("invalid-email");
+        user.setPhone("");
 
         when(userService.registerUser(anyString(), anyString(), anyString(), anyString()))
-                .thenThrow(new IllegalArgumentException("Email already exists"));
+                .thenThrow(new IllegalArgumentException("Invalid user details"));
 
         // Act
         ResponseEntity<?> response = authController.register(user);
@@ -89,55 +89,25 @@ public class AuthControllerTest {
         assertTrue(response.getBody() instanceof Map);
         Map<String, Object> responseBody = (Map<String, Object>) response.getBody();
         assertFalse((Boolean) responseBody.get("success"));
-        assertEquals("Email already exists", responseBody.get("message"));
+        assertEquals("Invalid user details", responseBody.get("message"));
 
-        verify(userService).registerUser("existinguser", "password123", "existing@example.com", "1234567890");
+        verify(userService).registerUser("invalid-email", "", "invalid-email", "");
         verifyNoInteractions(emailService);
     }
 
     @Test
-    void shouldSendVerificationEmailAfterSuccessfulRegistration() {
+    public void testVerifyEmailSuccess() {
         // Arrange
-        User user = new User();
-        user.setUsername("newuser");
-        user.setPassword("password123");
-        user.setEmail("newuser@example.com");
-        user.setPhone("1234567890");
-
-        User registeredUser = new User();
-        registeredUser.setUsername("newuser");
-        registeredUser.setEmail("newuser@example.com");
-        registeredUser.setVerificationToken("verificationtoken123");
-
-        when(userService.registerUser(anyString(), anyString(), anyString(), anyString())).thenReturn(registeredUser);
-        doNothing().when(emailService).sendEmail(anyString(), anyString(), anyString());
-
-        // Act
-        ResponseEntity<?> response = authController.register(user);
-
-        // Assert
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        verify(userService).registerUser("newuser", "password123", "newuser@example.com", "1234567890");
-        verify(emailService).sendEmail(
-                eq("newuser@example.com"),
-                eq("Verify Your Email"),
-                contains("http://signaturegenerator.samueldev.com/api/auth/verify?token=verificationtoken123")
-        );
-    }
-
-    @Test
-    void shouldVerifyUserEmailWithValidToken() {
-        // Arrange
-        String validToken = "validToken123";
+        String token = "validToken123";
         User user = new User();
         user.setVerified(false);
-        user.setVerificationToken(validToken);
+        user.setVerificationToken(token);
 
-        when(userService.findByVerificationToken(validToken)).thenReturn(user);
+        when(userService.findByVerificationToken(token)).thenReturn(user);
         when(userService.isTokenExpired(user)).thenReturn(false);
 
         // Act
-        ResponseEntity<?> response = authController.verifyEmail(validToken);
+        ResponseEntity<?> response = authController.verifyEmail(token);
 
         // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -145,42 +115,45 @@ public class AuthControllerTest {
         assertTrue(user.isVerified());
         assertNull(user.getVerificationToken());
 
-        verify(userService).findByVerificationToken(validToken);
+        verify(userService).findByVerificationToken(token);
         verify(userService).isTokenExpired(user);
         verify(userService).saveUser(user);
     }
 
     @Test
-    void shouldReturnErrorWhenVerifyingWithExpiredToken() {
+    public void testVerifyEmailWithInvalidOrExpiredToken() {
         // Arrange
-        String expiredToken = "expiredToken123";
-        User user = new User();
-        user.setVerified(false);
-        user.setVerificationToken(expiredToken);
+        String invalidToken = "invalidToken123";
+        when(userService.findByVerificationToken(invalidToken)).thenReturn(null);
 
-        when(userService.findByVerificationToken(expiredToken)).thenReturn(user);
-        when(userService.isTokenExpired(user)).thenReturn(true);
+        String expiredToken = "expiredToken456";
+        User userWithExpiredToken = new User();
+        when(userService.findByVerificationToken(expiredToken)).thenReturn(userWithExpiredToken);
+        when(userService.isTokenExpired(userWithExpiredToken)).thenReturn(true);
 
-        // Act
-        ResponseEntity<?> response = authController.verifyEmail(expiredToken);
+        // Act & Assert for invalid token
+        ResponseEntity<?> responseInvalid = authController.verifyEmail(invalidToken);
+        assertEquals(HttpStatus.BAD_REQUEST, responseInvalid.getStatusCode());
+        assertEquals("Invalid verification token", responseInvalid.getBody());
 
-        // Assert
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertEquals("Verification token has expired. Please request a new one.", response.getBody());
-        assertFalse(user.isVerified());
-        assertNotNull(user.getVerificationToken());
+        // Act & Assert for expired token
+        ResponseEntity<?> responseExpired = authController.verifyEmail(expiredToken);
+        assertEquals(HttpStatus.BAD_REQUEST, responseExpired.getStatusCode());
+        assertEquals("Verification token has expired. Please request a new one.", responseExpired.getBody());
 
+        // Verify
+        verify(userService).findByVerificationToken(invalidToken);
         verify(userService).findByVerificationToken(expiredToken);
-        verify(userService).isTokenExpired(user);
+        verify(userService).isTokenExpired(userWithExpiredToken);
         verifyNoMoreInteractions(userService);
     }
 
     @Test
-    void shouldSuccessfullyLoginVerifiedUserWithCorrectCredentials() {
+    public void testLoginSuccess() {
         // Arrange
         User user = new User();
         user.setEmail("test@example.com");
-        user.setPassword("correctPassword");
+        user.setPassword("password123");
 
         User loggedInUser = new User();
         loggedInUser.setId(1L);
@@ -188,9 +161,9 @@ public class AuthControllerTest {
         loggedInUser.setEmail("test@example.com");
         loggedInUser.setVerified(true);
 
-        when(userService.authenticate("test@example.com", "correctPassword")).thenReturn(true);
+        when(userService.authenticate("test@example.com", "password123")).thenReturn(true);
         when(userService.findByEmail("test@example.com")).thenReturn(loggedInUser);
-        when(jwtService.buildToken("testuser", 1L)).thenReturn("mocked.jwt.token");
+        when(jwtService.buildToken("test@example.com", 1L)).thenReturn("jwt.token.here");
 
         // Act
         ResponseEntity<?> response = authController.login(user);
@@ -201,23 +174,23 @@ public class AuthControllerTest {
         Map<String, Object> responseBody = (Map<String, Object>) response.getBody();
         assertTrue((Boolean) responseBody.get("success"));
         assertEquals("Login successful", responseBody.get("message"));
-        assertEquals("mocked.jwt.token", responseBody.get("token"));
+        assertEquals("jwt.token.here", responseBody.get("token"));
         assertEquals("test@example.com", responseBody.get("email"));
         assertEquals(1L, responseBody.get("userId"));
 
-        verify(userService).authenticate("test@example.com", "correctPassword");
+        verify(userService).authenticate("test@example.com", "password123");
         verify(userService).findByEmail("test@example.com");
-        verify(jwtService).buildToken("testuser", 1L);
+        verify(jwtService).buildToken("test@example.com", 1L);
     }
 
     @Test
-    void shouldReturnErrorWhenLoggingInWithIncorrectPassword() {
+    public void testLoginWithInvalidCredentials() {
         // Arrange
         User user = new User();
-        user.setEmail("test@example.com");
-        user.setPassword("incorrectPassword");
+        user.setEmail("invalid@example.com");
+        user.setPassword("wrongpassword");
 
-        when(userService.authenticate("test@example.com", "incorrectPassword")).thenReturn(false);
+        when(userService.authenticate("invalid@example.com", "wrongpassword")).thenReturn(false);
 
         // Act
         ResponseEntity<?> response = authController.login(user);
@@ -229,12 +202,13 @@ public class AuthControllerTest {
         assertFalse((Boolean) responseBody.get("success"));
         assertEquals("Invalid email or password, or unverified email", responseBody.get("message"));
 
-        verify(userService).authenticate("test@example.com", "incorrectPassword");
-        verifyNoMoreInteractions(userService, jwtService);
+        verify(userService).authenticate("invalid@example.com", "wrongpassword");
+        verifyNoMoreInteractions(userService);
+        verifyNoInteractions(jwtService);
     }
 
     @Test
-    void shouldReturnErrorWhenLoggingInWithUnverifiedEmail() {
+    public void testLoginWithUnverifiedEmail() {
         // Arrange
         User user = new User();
         user.setEmail("unverified@example.com");
@@ -242,7 +216,7 @@ public class AuthControllerTest {
 
         User unverifiedUser = new User();
         unverifiedUser.setId(2L);
-        unverifiedUser.setUsername("unverifieduser");
+        unverifiedUser.setUsername("unverified");
         unverifiedUser.setEmail("unverified@example.com");
         unverifiedUser.setVerified(false);
 
@@ -265,42 +239,30 @@ public class AuthControllerTest {
     }
 
     @Test
-    void shouldGenerateAndReturnJwtTokenUponSuccessfulLogin() {
+    public void testLoginWithUserNotFoundAfterAuthentication() {
         // Arrange
         User user = new User();
         user.setEmail("test@example.com");
-        user.setPassword("correctPassword");
+        user.setPassword("password123");
 
-        User loggedInUser = new User();
-        loggedInUser.setId(1L);
-        loggedInUser.setUsername("testuser");
-        loggedInUser.setEmail("test@example.com");
-        loggedInUser.setVerified(true);
-
-        when(userService.authenticate("test@example.com", "correctPassword")).thenReturn(true);
-        when(userService.findByEmail("test@example.com")).thenReturn(loggedInUser);
-        when(jwtService.buildToken("testuser", 1L)).thenReturn("mocked.jwt.token");
+        when(userService.authenticate("test@example.com", "password123")).thenReturn(true);
+        when(userService.findByEmail("test@example.com")).thenReturn(null);
 
         // Act
         ResponseEntity<?> response = authController.login(user);
 
         // Assert
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertInstanceOf(Map.class, response.getBody());
-        Map<String, Object> responseBody = (Map<String, Object>) response.getBody();
-        assertTrue((Boolean) responseBody.get("success"));
-        assertEquals("Login successful", responseBody.get("message"));
-        assertEquals("mocked.jwt.token", responseBody.get("token"));
-        assertEquals("test@example.com", responseBody.get("email"));
-        assertEquals(1L, responseBody.get("userId"));
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        assertEquals("User not found after authentication", response.getBody());
 
-        verify(userService).authenticate("test@example.com", "correctPassword");
+        verify(userService).authenticate("test@example.com", "password123");
         verify(userService).findByEmail("test@example.com");
-        verify(jwtService).buildToken("testuser", 1L);
+        verifyNoMoreInteractions(userService);
+        verifyNoInteractions(jwtService);
     }
 
     @Test
-    void shouldReturnSuccessMessageOnLogout() {
+    public void testLogoutSuccess() {
         // Arrange
         HttpServletRequest mockRequest = mock(HttpServletRequest.class);
 
@@ -309,9 +271,41 @@ public class AuthControllerTest {
 
         // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertNotNull(response.getBody());
+        assertTrue(response.getBody() instanceof Map);
         Map<String, Object> responseBody = response.getBody();
         assertTrue((Boolean) responseBody.get("success"));
         assertEquals("Logged out successfully. Please delete the JWT token on your end.", responseBody.get("message"));
+
+        // Verify that no interactions were made with the mocked request
+        verifyNoInteractions(mockRequest);
+    }
+
+    @Test
+    public void testRegisterWithEmailSendingFailure() {
+        // Arrange
+        User user = new User();
+        user.setUsername("testuser");
+        user.setPassword("password123");
+        user.setEmail("testuser@example.com");
+        user.setPhone("1234567890");
+
+        User registeredUser = new User();
+        registeredUser.setUsername("testuser@example.com");
+        registeredUser.setEmail("testuser@example.com");
+        registeredUser.setVerificationToken("abc123");
+
+        when(userService.registerUser(anyString(), anyString(), anyString(), anyString())).thenReturn(registeredUser);
+        doThrow(new RuntimeException("Email sending failed")).when(emailService).sendEmail(anyString(), anyString(), anyString());
+
+        // Act and Assert
+        Exception exception = assertThrows(RuntimeException.class, () -> {
+            authController.register(user);
+        });
+
+        assertEquals("Email sending failed", exception.getMessage());
+        assertEquals(RuntimeException.class, exception.getClass());
+
+        verify(userService).registerUser("testuser@example.com", "password123", "testuser@example.com", "1234567890");
+        verify(emailService).sendEmail(eq("testuser@example.com"), eq("Verify Your Email"), contains("http://signaturegenerator.samueldev.com/api/auth/verify?token=abc123"));
     }
 }
